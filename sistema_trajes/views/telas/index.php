@@ -1,13 +1,16 @@
 <div class="card">
-    <h1>Tipos de tela</h1>
-    <div class="card-subtitle">
-        Administración de telas disponibles para los trajes (lino, algodón, seda, etc.).
+    <div class="section-title">
+        <div>
+            <h1>Tipos de tela</h1>
+            <p class="card-subtitle">Catálogo de telas disponibles para los trajes.</p>
+        </div>
+        <div class="acciones">
+            <a href="index.php?c=telas&a=crear" class="btn btn-primary">➕ Nueva tela</a>
+        </div>
     </div>
 
-    <a href="index.php?c=telas&a=crear" class="btn btn-primary">➕ Nueva tela</a>
-
     <div class="table-wrapper">
-        <table class="clientes">
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
@@ -24,15 +27,9 @@
                     <td><span class="badge"><?= htmlspecialchars($te['nombre']) ?></span></td>
                     <td><?= htmlspecialchars($te['descripcion']) ?></td>
                     <td class="acciones">
-                        <a class="btn btn-warning"
-                           href="index.php?c=telas&a=editar&id=<?= $te['id'] ?>">
-                            ✏ Editar
-                        </a>
-                        <a class="btn btn-danger"
-                           href="index.php?c=telas&a=eliminar&id=<?= $te['id'] ?>"
-                           onclick="return confirm('¿Eliminar este tipo de tela?');">
-                            🗑 Eliminar
-                        </a>
+                        <a class="btn btn-warning" href="index.php?c=telas&a=editar&id=<?= $te['id'] ?>">✏ Editar</a>
+                        <a class="btn btn-danger" href="index.php?c=telas&a=eliminar&id=<?= $te['id'] ?>"
+                           onclick="return confirm('¿Eliminar este tipo de tela?');">🗑 Eliminar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -45,4 +42,3 @@
         </table>
     </div>
 </div>
-

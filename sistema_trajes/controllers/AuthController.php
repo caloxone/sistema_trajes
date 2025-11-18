@@ -11,7 +11,7 @@ class AuthController extends Controller {
             return;
         }
 
-        $usuarioRecordado = $_COOKIE['recordar_usuario'] ?? '';
+        $usuarioRecordado = isset($_COOKIE['recordar_usuario']) ? $_COOKIE['recordar_usuario'] : '';
         $error = isset($_GET['error']) ? true : false;
 
         $this->view('auth/login', [
@@ -21,8 +21,8 @@ class AuthController extends Controller {
     }
 
     public function ingresar() {
-        $usuario  = $_POST['usuario']  ?? '';
-        $password = $_POST['password'] ?? '';
+        $usuario  = isset($_POST['usuario']) ? $_POST['usuario'] : '';
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
         $recordar = isset($_POST['recordar']);
 
         if ($usuario === '' || $password === '') {

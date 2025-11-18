@@ -1,30 +1,111 @@
-<h2>Editar traje</h2>
+<?php
+$traje = isset($traje) ? $traje : [];
+$errores = isset($errores) ? $errores : [];
+$categorias = isset($categorias) ? $categorias : [];
+$telas = isset($telas) ? $telas : [];
+$tallas = isset($tallas) ? $tallas : [];
+?>
 
-<form action="index.php?c=trajes&a=actualizar" method="POST">
+<div class="form-card">
+    <div class="section-title">
+        <div>
+            <h2>Editar traje</h2>
+            <p class="card-subtitle">Actualiza la información del traje seleccionado.</p>
+        </div>
+        <a href="index.php?c=trajes&a=index" class="btn btn-secondary">↩ Volver</a>
+    </div>
 
-    <input type="hidden" name="id" value="<?= $traje['id'] ?>">
+    <?php if (!empty($errores)): ?>
+        <div class="alert alert-error">
+            <strong>Corrige los datos antes de guardar:</strong>
+            <ul>
+                <?php foreach ($errores as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    Código: <input value="<?= $traje['codigo'] ?>" name="codigo"><br><br>
-    Nombre: <input value="<?= $traje['nombre'] ?>" name="nombre"><br><br>
-    Categoría ID: <input value="<?= $traje['id_categoria'] ?>" name="id_categoria"><br><br>
-    Tela ID: <input value="<?= $traje['id_tela'] ?>" name="id_tela"><br><br>
-    Talla ID: <input value="<?= $traje['id_talla'] ?>" name="id_talla"><br><br>
+    <form action="index.php?c=trajes&a=actualizar" method="POST">
+        <input type="hidden" name="id" value="<?= $traje['id'] ?>">
 
-    Nº piezas: <input value="<?= $traje['numero_piezas'] ?>" name="numero_piezas"><br><br>
-    Color: <input value="<?= $traje['color'] ?>" name="color"><br><br>
-    Tipo: <input value="<?= $traje['tipo'] ?>" name="tipo"><br><br>
-    Precio: <input value="<?= $traje['precio_venta'] ?>" name="precio_venta"><br><br>
-    Stock: <input value="<?= $traje['stock'] ?>" name="stock"><br><br>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Código *</label>
+                <input type="text" name="codigo" required value="<?= htmlspecialchars($traje['codigo']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Nombre *</label>
+                <input type="text" name="nombre" required value="<?= htmlspecialchars($traje['nombre']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="id_categoria">
+                    <option value="">Sin categoría</option>
+                    <?php foreach ($categorias as $cat): ?>
+                        <option value="<?= $cat['id'] ?>" <?= $traje['id_categoria'] == $cat['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($cat['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tela</label>
+                <select name="id_tela">
+                    <option value="">Sin tela</option>
+                    <?php foreach ($telas as $tela): ?>
+                        <option value="<?= $tela['id'] ?>" <?= $traje['id_tela'] == $tela['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($tela['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Talla</label>
+                <select name="id_talla">
+                    <option value="">Sin talla</option>
+                    <?php foreach ($tallas as $talla): ?>
+                        <option value="<?= $talla['id'] ?>" <?= $traje['id_talla'] == $talla['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($talla['talla']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Número de piezas *</label>
+                <input type="number" name="numero_piezas" min="1" required value="<?= htmlspecialchars($traje['numero_piezas']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Color</label>
+                <input type="text" name="color" value="<?= htmlspecialchars($traje['color']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <input type="text" name="tipo" value="<?= htmlspecialchars($traje['tipo']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Precio de venta (Bs.) *</label>
+                <input type="number" name="precio_venta" min="0" step="0.01" required value="<?= htmlspecialchars($traje['precio_venta']) ?>">
+            </div>
+            <div class="form-group">
+                <label>Stock *</label>
+                <input type="number" name="stock" min="0" required value="<?= htmlspecialchars($traje['stock']) ?>">
+            </div>
+        </div>
 
-    <button type="submit">Actualizar</button>
-</form>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">💾 Actualizar</button>
+            <a href="index.php?c=trajes&a=index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
 <script>
-const ultimoTraje = {
-    id: "<?= $traje['id'] ?>",
-    codigo: "<?= $traje['codigo'] ?>",
-    nombre: "<?= $traje['nombre'] ?>",
-    precio: "<?= $traje['precio_venta'] ?>"
-};
-
-localStorage.setItem("ultimoTrajeVisto", JSON.stringify(ultimoTraje));
+const ultimoTraje = <?= json_encode([
+    'id' => $traje['id'],
+    'codigo' => $traje['codigo'],
+    'nombre' => $traje['nombre'],
+    'precio' => $traje['precio_venta']
+]) ?>;
+localStorage.setItem('ultimoTrajeVisto', JSON.stringify(ultimoTraje));
 </script>

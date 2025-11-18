@@ -34,7 +34,7 @@ class TallasController extends Controller {
     }
 
     public function editar() {
-        $id = $_GET['id'] ?? null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         if (!$id) {
             header('Location: index.php?c=tallas&a=index');
             return;
@@ -54,7 +54,7 @@ class TallasController extends Controller {
     }
 
     public function eliminar() {
-        $id = $_GET['id'] ?? null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         if ($id) {
             $this->model->delete($id);
         }

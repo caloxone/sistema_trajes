@@ -1,111 +1,126 @@
-<h1>Lista de Trajes</h1>
-
-<a href="index.php?c=trajes&a=crear">➕ Nuevo traje</a>
-<div class="card" style="margin-bottom:16px;">
-    <h3>Filtros de búsqueda</h3>
-
-    <div class="form-group" style="max-width:300px;">
-        <label>Categoría</label>
-        <input type="text" id="filtroCategoria">
+<div class="section-title">
+    <div>
+        <h1>Inventario de trajes</h1>
+        <p class="card-subtitle">Controla todos los modelos disponibles y su stock.</p>
     </div>
-
-    <div class="form-group" style="max-width:300px;">
-        <label>Talla</label>
-        <input type="text" id="filtroTalla">
+    <div class="acciones">
+        <a class="btn btn-primary" href="index.php?c=trajes&a=crear">➕ Nuevo traje</a>
     </div>
-
-    <div class="form-group" style="max-width:300px;">
-        <label>Color</label>
-        <input type="text" id="filtroColor">
-    </div>
-
-    <div class="form-group" style="max-width:300px;">
-        <label>Precio máximo</label>
-        <input type="number" id="filtroPrecio">
-    </div>
-
-    <button class="btn btn-primary" onclick="guardarFiltros()">Guardar filtros</button>
 </div>
+
+<div id="avisoTraje"></div>
+
+<div class="card">
+    <div class="section-title" style="margin-bottom: 12px;">
+        <h3>Filtros de búsqueda</h3>
+        <button class="btn btn-secondary" type="button" onclick="guardarFiltros()">Guardar filtros</button>
+    </div>
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="filtroCategoria">Categoría</label>
+            <input type="text" id="filtroCategoria" placeholder="Ej. Smoking">
+        </div>
+        <div class="form-group">
+            <label for="filtroTalla">Talla</label>
+            <input type="text" id="filtroTalla" placeholder="M, L, XL">
+        </div>
+        <div class="form-group">
+            <label for="filtroColor">Color</label>
+            <input type="text" id="filtroColor" placeholder="Negro, azul…">
+        </div>
+        <div class="form-group">
+            <label for="filtroPrecio">Precio máximo</label>
+            <input type="number" id="filtroPrecio" placeholder="250">
+        </div>
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Tela</th>
+                <th>Talla</th>
+                <th>Piezas</th>
+                <th>Color</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($trajes)): ?>
+                <?php foreach ($trajes as $t): ?>
+                <tr class="fila-traje" data-traje='<?= json_encode(array(
+                    "codigo" => $t['codigo'],
+                    "nombre" => $t['nombre'],
+                    "precio" => $t['precio_venta']
+                ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>'>
+                    <td><span class="tag">#<?= htmlspecialchars($t['codigo']) ?></span></td>
+                    <td><?= htmlspecialchars($t['nombre']) ?></td>
+                    <td><?= htmlspecialchars($t['categoria']) ?></td>
+                    <td><?= htmlspecialchars($t['tela']) ?></td>
+                    <td><?= htmlspecialchars($t['talla']) ?></td>
+                    <td><?= htmlspecialchars($t['numero_piezas']) ?></td>
+                    <td><?= htmlspecialchars($t['color']) ?></td>
+                    <td>Bs. <?= number_format($t['precio_venta'], 2) ?></td>
+                    <td><?= htmlspecialchars($t['stock']) ?></td>
+                    <td class="acciones">
+                        <a class="btn btn-secondary btn-small" href="index.php?c=trajes&a=editar&id=<?= $t['id'] ?>">✏ Editar</a>
+                        <a class="btn btn-danger btn-small" href="index.php?c=trajes&a=eliminar&id=<?= $t['id'] ?>"
+                           onclick="return confirm('¿Eliminar este traje?');">🗑 Eliminar</a>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="10">No hay trajes registrados.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+
 <script>
-function guardarFiltros() {
+const guardarFiltros = () => {
     const filtros = {
-        categoria: document.getElementById("filtroCategoria").value,
-        talla: document.getElementById("filtroTalla").value,
-        color: document.getElementById("filtroColor").value,
-        precio: document.getElementById("filtroPrecio").value
+        categoria: document.getElementById('filtroCategoria').value,
+        talla: document.getElementById('filtroTalla').value,
+        color: document.getElementById('filtroColor').value,
+        precio: document.getElementById('filtroPrecio').value
     };
+    localStorage.setItem('filtrosTrajes', JSON.stringify(filtros));
+    alert('Filtros guardados');
+};
 
-    localStorage.setItem("filtrosTrajes", JSON.stringify(filtros));
-    alert("Filtros guardados en LocalStorage");
-}
-
-window.onload = function() {
-    const guardado = localStorage.getItem("filtrosTrajes");
+document.addEventListener('DOMContentLoaded', () => {
+    const guardado = localStorage.getItem('filtrosTrajes');
     if (guardado) {
         const f = JSON.parse(guardado);
-        document.getElementById("filtroCategoria").value = f.categoria;
-        document.getElementById("filtroTalla").value = f.talla;
-        document.getElementById("filtroColor").value = f.color;
-        document.getElementById("filtroPrecio").value = f.precio;
+        document.getElementById('filtroCategoria').value = f.categoria || '';
+        document.getElementById('filtroTalla').value = f.talla || '';
+        document.getElementById('filtroColor').value = f.color || '';
+        document.getElementById('filtroPrecio').value = f.precio || '';
     }
-};
-</script>
 
-<table border="1" cellpadding="8">
-    <tr>
-        <th>Código</th>
-        <th>Nombre</th>
-        <th>Categoría</th>
-        <th>Tela</th>
-        <th>Talla</th>
-        <th>Piezas</th>
-        <th>Color</th>
-        <th>Precio</th>
-        <th>Stock</th>
-        <th>Acciones</th>
-    </tr>
-
-    <?php foreach ($trajes as $t): ?>
-    <tr>
-        <td><?= $t['codigo'] ?></td>
-        <td><?= $t['nombre'] ?></td>
-        <td><?= $t['categoria'] ?></td>
-        <td><?= $t['tela'] ?></td>
-        <td><?= $t['talla'] ?></td>
-        <td><?= $t['numero_piezas'] ?></td>
-        <td><?= $t['color'] ?></td>
-        <td><?= $t['precio_venta'] ?></td>
-        <td><?= $t['stock'] ?></td>
-
-        <td>
-            <a href="index.php?c=trajes&a=editar&id=<?= $t['id'] ?>">✏ Editar</a>
-            <a href="index.php?c=trajes&a=eliminar&id=<?= $t['id'] ?>"
-               onclick="return confirm('¿Eliminar este traje?');">❌ Eliminar</a>
-        </td>
-    </tr>
-    <?php endforeach; ?>
-</table>
-<script>
-window.onload = function() {
-    const data = localStorage.getItem("ultimoTrajeVisto");
+    const avisoTraje = document.getElementById('avisoTraje');
+    const data = localStorage.getItem('ultimoTrajeVisto');
     if (data) {
         const t = JSON.parse(data);
-        const aviso = document.createElement("div");
-
-        aviso.style = `
-            background:#dbeafe;
-            padding:10px;
-            margin-bottom:12px;
-            border-radius:8px;
-            font-size:14px;
+        avisoTraje.innerHTML = `
+            <div class="card" style="background:#dbeafe; color:#1e3a8a;">
+                🔔 Último traje visto: <strong>${t.codigo}</strong> - ${t.nombre} (Bs. ${t.precio})
+            </div>
         `;
-
-        aviso.innerHTML = `
-            🔔 Último traje visto: <b>${t.codigo}</b> - ${t.nombre}
-            (Bs. ${t.precio})
-        `;
-
-        document.body.prepend(aviso);
     }
-};
+
+    document.querySelectorAll('.fila-traje').forEach((fila) => {
+        fila.addEventListener('click', () => {
+            localStorage.setItem('ultimoTrajeVisto', fila.dataset.traje);
+        });
+    });
+});
 </script>

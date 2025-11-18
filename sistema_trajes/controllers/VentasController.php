@@ -11,36 +11,33 @@ class VentasController extends Controller {
     private $trajeModel;
 
     private function validarVenta($items) {
-    $errores = [];
+        $errores = [];
 
-    if (count($items) == 0) {
-        $errores[] = "Debe agregar al menos un traje a la venta.";
+        if (count($items) === 0) {
+            $errores[] = "Debe agregar al menos un traje a la venta.";
+        }
+
+        foreach ($items as $item) {
+            if ($item['cantidad'] <= 0) {
+                $errores[] = "La cantidad debe ser mayor a 0.";
+            }
+            if ($item['precio_unitario'] <= 0) {
+                $errores[] = "El precio unitario debe ser mayor a 0.";
+            }
+        }
+
+        return $errores;
     }
 
-    foreach ($items as $item) {
-        if ($item['cantidad'] <= 0) {
-            $errores[] = "La cantidad debe ser mayor a 0.";
-        }
-        if ($item['precio_unitario'] <= 0) {
-            $errores[] = "El precio unitario debe ser mayor a 0.";
-        }
+    private function renderFormularioVenta($data = []) {
+        $clientes = $this->clienteModel->getAll();
+        $trajes = $this->trajeModel->getAll();
+
+        $this->view('ventas/crear', array_merge([
+            'clientes' => $clientes,
+            'trajes'   => $trajes,
+        ], $data));
     }
-
-    return $errores;
-$errores = $this->validarVenta($items);
-if (!empty($errores)) {
-    $clientes = $this->clienteModel->getAll();
-    $trajes = $this->trajeModel->getAll();
-
-    $this->view('ventas/crear', [
-        'clientes' => $clientes,
-        'trajes' => $trajes,
-        'errores' => $errores
-    ]);
-    return;
-}
-
-}
 public function exportar_excel() {
     $ventas = $this->ventaModel->getAll();
 
@@ -86,12 +83,7 @@ public function exportar_excel() {
 
     // FORMULARIO PARA CREAR UNA NUEVA VENTA
     public function crear() {
-        $clientes = $this->clienteModel->getAll();
-        $trajes   = $this->trajeModel->getAll();
-        $this->view('ventas/crear', [
-            'clientes' => $clientes,
-            'trajes'   => $trajes
-        ]);
+        $this->renderFormularioVenta();
     }
 
     // GUARDAR LA VENTA
@@ -99,16 +91,16 @@ public function exportar_excel() {
         // -------------------------
         // Cabecera de la venta
         // -------------------------
-        $idUsuario   = 1; // TODO: reemplazar por $_SESSION['id_usuario'] cuando tengas login
-        $idCliente   = $_POST['id_cliente'];
-        $observacion = $_POST['observaciones'] ?? '';
+        $idUsuario   = isset($_SESSION['id_usuario']) ? $_SESSION['id_usuario'] : 1;
+        $idCliente   = isset($_POST['id_cliente']) ? $_POST['id_cliente'] : '';
+        $observacion = isset($_POST['observaciones']) ? $_POST['observaciones'] : '';
 
         // -------------------------
         // Detalle: arrays en POST
         // -------------------------
-        $idsTraje  = $_POST['id_traje'] ?? [];
-        $cantidades = $_POST['cantidad'] ?? [];
-        $precios    = $_POST['precio_unitario'] ?? [];
+        $idsTraje  = isset($_POST['id_traje']) ? $_POST['id_traje'] : [];
+        $cantidades = isset($_POST['cantidad']) ? $_POST['cantidad'] : [];
+        $precios    = isset($_POST['precio_unitario']) ? $_POST['precio_unitario'] : [];
 
         $items = [];
         $total = 0;
@@ -127,9 +119,21 @@ public function exportar_excel() {
             ];
         }
 
-        // Si no hay ítems válidos, regresar
-        if (empty($items)) {
-            header('Location: index.php?c=ventas&a=crear');
+        $errores = [];
+        if (empty($idCliente)) {
+            $errores[] = 'Selecciona un cliente para registrar la venta.';
+        }
+
+        $errores = array_merge($errores, $this->validarVenta($items));
+        if (!empty($errores)) {
+            $this->renderFormularioVenta([
+                'errores' => $errores,
+                'old' => [
+                    'id_cliente'    => $idCliente,
+                    'observaciones' => $observacion,
+                    'items'         => $items
+                ]
+            ]);
             return;
         }
 
@@ -143,8 +147,14 @@ public function exportar_excel() {
         $idVenta = $this->ventaModel->crearVenta($cabecera, $items);
 
         if ($idVenta === false) {
-            // En caso de error, podrías mostrar un mensaje, etc.
-            header('Location: index.php?c=ventas&a=crear');
+            $this->renderFormularioVenta([
+                'errores' => ['No se pudo guardar la venta. Inténtalo nuevamente.'],
+                'old' => [
+                    'id_cliente'    => $idCliente,
+                    'observaciones' => $observacion,
+                    'items'         => $items
+                ]
+            ]);
         } else {
             header('Location: index.php?c=ventas&a=ver&id=' . $idVenta);
         }
@@ -152,7 +162,7 @@ public function exportar_excel() {
 
     // VER UNA VENTA ESPECÍFICA
     public function ver() {
-        $id = $_GET['id'] ?? null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         if (!$id) {
             header('Location: index.php?c=ventas&a=index');
             return;

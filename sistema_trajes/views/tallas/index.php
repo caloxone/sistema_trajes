@@ -1,13 +1,16 @@
 <div class="card">
-    <h1>Tallas</h1>
-    <div class="card-subtitle">
-        Administración de tallas para los trajes (S, M, L, 38, 40, etc.).
+    <div class="section-title">
+        <div>
+            <h1>Tallas</h1>
+            <p class="card-subtitle">Administra las tallas disponibles para los trajes.</p>
+        </div>
+        <div class="acciones">
+            <a href="index.php?c=tallas&a=crear" class="btn btn-primary">➕ Nueva talla</a>
+        </div>
     </div>
 
-    <a href="index.php?c=tallas&a=crear" class="btn btn-primary">➕ Nueva talla</a>
-
     <div class="table-wrapper">
-        <table class="clientes">
+        <table>
             <thead>
                 <tr>
                     <th>#</th>
@@ -24,15 +27,9 @@
                     <td><span class="badge"><?= htmlspecialchars($ta['talla']) ?></span></td>
                     <td><?= htmlspecialchars($ta['descripcion']) ?></td>
                     <td class="acciones">
-                        <a class="btn btn-warning"
-                           href="index.php?c=tallas&a=editar&id=<?= $ta['id'] ?>">
-                            ✏ Editar
-                        </a>
-                        <a class="btn btn-danger"
-                           href="index.php?c=tallas&a=eliminar&id=<?= $ta['id'] ?>"
-                           onclick="return confirm('¿Eliminar esta talla?');">
-                            🗑 Eliminar
-                        </a>
+                        <a class="btn btn-warning" href="index.php?c=tallas&a=editar&id=<?= $ta['id'] ?>">✏ Editar</a>
+                        <a class="btn btn-danger" href="index.php?c=tallas&a=eliminar&id=<?= $ta['id'] ?>"
+                           onclick="return confirm('¿Eliminar esta talla?');">🗑 Eliminar</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>

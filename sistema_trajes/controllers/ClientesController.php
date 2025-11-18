@@ -3,24 +3,29 @@ require_once 'core/Controller.php';
 require_once 'models/Cliente.php';
 
 class ClientesController extends Controller {
-private function validarCliente($data) {
-    $errores = [];
+    private function validarCliente($data) {
+        $errores = [];
 
-    if (trim($data['nombre']) === "") {
-        $errores[] = "El nombre del cliente es obligatorio.";
-    }
-    if (!preg_match("/^[0-9]{5,15}$/", $data['ci_nit'])) {
-        $errores[] = "El CI/NIT debe ser numérico y tener entre 5 y 15 dígitos.";
-    }
-    if (!filter_var($data['correo'], FILTER_VALIDATE_EMAIL)) {
-        $errores[] = "El correo no es válido.";
-    }
-    if (!preg_match("/^[0-9]{7,15}$/", $data['telefono'])) {
-        $errores[] = "El teléfono debe ser numérico y válido.";
-    }
+        $nombre = isset($data['nombre']) ? trim($data['nombre']) : '';
+        $ciNit = isset($data['ci_nit']) ? trim($data['ci_nit']) : '';
+        $telefono = isset($data['telefono']) ? trim($data['telefono']) : '';
+        $correo = isset($data['correo']) ? trim($data['correo']) : '';
 
-    return $errores;
-}
+        if ($nombre === '') {
+            $errores[] = "El nombre del cliente es obligatorio.";
+        }
+        if ($ciNit !== '' && !preg_match("/^[0-9]{5,15}$/", $ciNit)) {
+            $errores[] = "El CI/NIT debe tener entre 5 y 15 dígitos.";
+        }
+        if ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            $errores[] = "El correo no es válido.";
+        }
+        if ($telefono !== '' && !preg_match("/^[0-9]{7,15}$/", $telefono)) {
+            $errores[] = "El teléfono debe ser numérico y válido.";
+        }
+
+        return $errores;
+    }
     
 
     private $model;
@@ -59,13 +64,24 @@ private function validarCliente($data) {
 
     // GUARDAR NUEVO CLIENTE
     public function guardar() {
+        $errores = $this->validarCliente($_POST);
+        if (!empty($errores)) {
+            $this->view('clientes/formulario', [
+                'cliente' => $_POST,
+                'accion'  => 'guardar',
+                'titulo'  => 'Registrar cliente',
+                'errores' => $errores
+            ]);
+            return;
+        }
+
         $this->model->create($_POST);
         header('Location: index.php?c=clientes&a=index');
     }
 
     // FORMULARIO EDITAR CLIENTE
     public function editar() {
-        $id = $_GET['id'] ?? null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         if (!$id) {
             header('Location: index.php?c=clientes&a=index');
             return;
@@ -81,6 +97,17 @@ private function validarCliente($data) {
 
     // ACTUALIZAR CLIENTE
     public function actualizar() {
+        $errores = $this->validarCliente($_POST);
+        if (!empty($errores)) {
+            $this->view('clientes/formulario', [
+                'cliente' => $_POST,
+                'accion'  => 'actualizar',
+                'titulo'  => 'Editar cliente',
+                'errores' => $errores
+            ]);
+            return;
+        }
+
         $id = $_POST['id'];
         $this->model->update($id, $_POST);
         header('Location: index.php?c=clientes&a=index');
@@ -88,7 +115,7 @@ private function validarCliente($data) {
 
     // ELIMINAR CLIENTE
     public function eliminar() {
-        $id = $_GET['id'] ?? null;
+        $id = isset($_GET['id']) ? $_GET['id'] : null;
         if ($id) {
             $this->model->delete($id);
         }
